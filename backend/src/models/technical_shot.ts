@@ -2,76 +2,76 @@ import { Card } from "./card";
 
 export class TechnicalShot extends Card{
     
-    public blue_position : string;
-    public red_position : string;
-    public blue_target : string;
-    public red_target : string;
-    public blue_shot : string;
-    public red_shot : string;
+    public first_position : string;
+    public second_position : string;
+    public first_target : string;
+    public second_target : string;
+    public first_shot : string;
+    public second_shot : string;
     public winning_shot : boolean;
 
-    public constructor (id: number, type: string, blue_position: string, red_position: string, blue_target: string, red_target: string, blue_shot: string, red_shot: string, winning_shot: boolean ){
-            super(id, type); // Call the base class constructor with required arguments
-            this.blue_position = blue_position;
-            this.red_position = red_position;
-            this.blue_target = blue_target;
-            this.red_target = red_target;
-            this.blue_shot = blue_shot;
-            this.red_shot = red_shot;
+    public constructor (id: number, type: string, first_position: string, second_position: string, first_target: string, second_target: string, first_shot: string, second_shot: string, winning_shot: boolean ){
+            super(id, type); // Call the base class constructor with requisecond arguments
+            this.first_position = first_position;
+            this.second_position = second_position;
+            this.first_target = first_target;
+            this.second_target = second_target;
+            this.first_shot = first_shot;
+            this.second_shot = second_shot;
             this.winning_shot = winning_shot;
     }
 
 
-    public getBluePosition(): string {
-        return this.blue_position;
+    public getfirstPosition(): string {
+        return this.first_position;
     }
 
-    public getRedPosition(): string {
-        return this.red_position;
+    public getsecondPosition(): string {
+        return this.second_position;
     }
 
-    public getBlueTarget(): string {
-        return this.blue_target;
+    public getfirstTarget(): string {
+        return this.first_target;
     }
 
-    public getRedTarget(): string {
-        return this.red_target;
+    public getsecondTarget(): string {
+        return this.second_target;
     }
 
-    public getBlueShot(): string {
-        return this.blue_shot;
+    public getfirstShot(): string {
+        return this.first_shot;
     }
 
-    public getRedShot(): string {
-        return this.red_shot;
+    public getsecondShot(): string {
+        return this.second_shot;
     }
 
     public getWinningShot(): boolean {
         return this.winning_shot;
     }
 
-    public setBluePosition(blue_position: string): void {
-        this.blue_position = blue_position;
+    public setfirstPosition(first_position: string): void {
+        this.first_position = first_position;
     }
 
-    public setRedPosition(red_position: string): void {
-        this.red_position = red_position;
+    public setsecondPosition(second_position: string): void {
+        this.second_position = second_position;
     }
 
-    public setBlueTarget(blue_target: string): void {
-        this.blue_target = blue_target;
+    public setfirstTarget(first_target: string): void {
+        this.first_target = first_target;
     }
 
-    public setRedTarget(red_target: string): void {
-        this.red_target = red_target;
+    public setsecondTarget(second_target: string): void {
+        this.second_target = second_target;
     }
 
-    public setBlueShot(blue_shot: string): void {
-        this.blue_shot = blue_shot;
+    public setfirstShot(first_shot: string): void {
+        this.first_shot = first_shot;
     }
 
-    public setRedShot(red_shot: string): void {
-        this.red_shot = red_shot;
+    public setsecondShot(second_shot: string): void {
+        this.second_shot = second_shot;
     }
 
     public setWinningShot(winning_shot: boolean): void {

@@ -27,7 +27,16 @@ export class Deck {
         this.cards = cards;
     }
 
-    /** Mélange le deck avec l'algorithme de Fisher-Yates */
+    // Retourne une carte du deck
+    public drawCard(): Card {
+        const card = this.cards.pop();
+        if (!card) {
+            throw new Error("Cannot draw a card from an empty deck.");
+        }
+        return card;
+    }
+
+    // Mélange les cartes du deck
     private shuffle(): void {
         for (let i = this.cards.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
