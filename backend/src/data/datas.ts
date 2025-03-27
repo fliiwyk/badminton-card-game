@@ -51,8 +51,21 @@ export const allCards : Card[] = [
     new TechnicalShot(42, "technical", "midLeft", "midRight", "midLeft", "shortRight", "defense", "bloc", false),
     new TechnicalShot(43, "technical", "shortLeft", "longLeft", "shortRight", "midRight", "drop", "slice", false),
     new TechnicalShot(44, "technical", "longRight", "midRight", "longLeft", "midRight", "clear", "drive", false), 
-    new TechnicalShot(45, "technical", "shortLeft", "midLeft", "shortLeft", "shortRight", "drop", "bloc", false)
+    new TechnicalShot(45, "technical", "shortLeft", "midLeft", "shortLeft", "shortRight", "drop", "bloc", false),
+
+
+    //special cards
+    new SpecialCard(46,  "special", "winPoint"),
+    new SpecialCard(47, "special", "winPoint"), 
+    new SpecialCard(48, "special", "winPoint"),
+    new SpecialCard(49, "special", "calledOut"),
+    new SpecialCard(50, "special", "calledOut"),
+    new SpecialCard(51, "special", "joker"),
+    new SpecialCard(52, "special", "serveOut"),
+    new SpecialCard(53, "special", "winningSmash")
 ];
+
+   
 
 
    

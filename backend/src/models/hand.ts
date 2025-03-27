@@ -6,8 +6,8 @@ import { SpecialCard } from "./special_card";
 export class Hand {
     public cards: Card[] = [];
 
-    public constructor(cards: Card[]) {
-        this.cards = cards;
+    public constructor() {
+        this.cards = [];
     }
 
     public getCards(): Card[] {

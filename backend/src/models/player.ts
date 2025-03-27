@@ -1,4 +1,5 @@
 import { Hand } from "./hand";
+import { Deck } from "./deck";
 
 
 export class Player { 
@@ -61,7 +62,11 @@ export class Player {
         this.score += score;
     }
 
-    
+    public receiveCard(card: any): void {
+        this.hand.addCard(card);
+    }
+
+
 
 
 }
