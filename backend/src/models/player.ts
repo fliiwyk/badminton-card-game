@@ -1,72 +1,83 @@
 import { Hand } from "./hand";
 import { Deck } from "./deck";
 
+export class Player {
+  private id: number;
+  private name: string;
+  private score: number;
+  private hand: Hand;
+  private histurn: boolean;
+  private team: number;
 
-export class Player { 
+  public constructor(
+    id: number,
+    name: string,
+    score: number,
+    hand: Hand,
+    histurn: boolean,
+    team: number
+  ) {
+    this.id = id;
+    this.name = name;
+    this.score = score;
+    this.hand = hand;
+    this.histurn = histurn;
+    this.team = 0;
+  }
 
-    private id: number;
-    private name: string;
-    private score: number;
-    private hand: Hand;
-    private histurn: boolean;
+  public getId(): number {
+    return this.id;
+  }
 
-    public constructor(id: number, name: string, score: number, hand: Hand, histurn: boolean) {
-        this.id = id;
-        this.name = name;
-        this.score = score;
-        this.hand = hand;
-        this.histurn = histurn;
-    }
+  public getName(): string {
+    return this.name;
+  }
 
-    public getId(): number {
-        return this.id;
-    }
+  public getScore(): number {
+    return this.score;
+  }
 
-    public getName(): string {
-        return this.name;
-    }
+  public getHand(): Hand {
+    return this.hand;
+  }
 
-    public getScore(): number {
-        return this.score;
-    }
+  public getHisturn(): boolean {
+    return this.histurn;
+  }
 
-    public getHand(): Hand {
-        return this.hand;
-    }
+  public setId(id: number): void {
+    this.id = id;
+  }
 
-    public getHisturn(): boolean {
-        return this.histurn;
-    }
+  public setName(name: string): void {
+    this.name = name;
+  }
 
-    public setId(id: number): void {
-        this.id = id;
-    }
+  public setScore(score: number): void {
+    this.score = score;
+  }
 
-    public setName(name: string): void {
-        this.name = name;
-    }
+  public setHand(hand: Hand): void {
+    this.hand = hand;
+  }
 
-    public setScore(score: number): void {
-        this.score = score;
-    }
+  public setHisturn(histurn: boolean): void {
+    this.histurn = histurn;
+  }
 
-    public setHand(hand: Hand): void {
-        this.hand = hand;
-    }
+  public addScore(score: number): void {
+    this.score += score;
+  }
 
-    public setHisturn(histurn: boolean): void {
-        this.histurn = histurn;
-    }
+  public receiveCard(card: any): void {
+    this.hand.addCard(card);
+  }
 
-    public addScore(score: number): void {
-        this.score += score;
-    }
+  public setTeam(team: number): void {
+    this.team = team;
+  }
 
-    public receiveCard(card: any): void {
-        this.hand.addCard(card);
-    }
-
-
-
-
+  public getTeam(): number {
+    return this.team;
+  }
 }

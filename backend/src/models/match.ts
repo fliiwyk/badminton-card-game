@@ -4,14 +4,15 @@ import { TechnicalShot } from "./technical_shot";
 import { Deck } from "./deck";
 import { SpecialCard } from "./special_card";
 import { Hand } from "./hand";
-import { allCards } from "../data/datas";
 
 export class Match {
   public id: number;
   public type: string;
   public players: Player[];
   public currentPlayer!: Player;
-
+  public serveDeck?: Deck;
+  public mainDeck?: Deck;
+  public middleDeck?: Deck;
   public winner!: Player;
   public turn: number;
   public end: boolean;
@@ -34,15 +35,21 @@ export class Match {
     let allCardsDeck = new Deck();
     allCardsDeck.setCards(allCards);
 
-    let serveDeck: Deck = this.setupServeDeck(allCardsDeck);
-    let setupDeck: Deck = allCardsDeck;
+    this.serveDeck = this.setupServeDeck(allCardsDeck);
+    this.mainDeck = allCardsDeck;
+    this.middleDeck = new Deck();
 
     // Mélanger le deck de cartes
-    serveDeck.shuffle();
-    setupDeck.shuffle();
+    this.serveDeck.shuffle();
+    this.mainDeck.shuffle();
 
     // Distribuer les cartes aux joueurs
-    this.drawCards(setupDeck);
+    this.drawCards(this.mainDeck);
+
+    this.setupScores();
+    this.currentPlayer = this.players[0];
+    this.turn = 1;
+    this.end = false;
   }
 
   public setupServeDeck(deck: Deck): Deck {
@@ -79,6 +86,62 @@ export class Match {
     } else {
       throw new Error("Invalid match type");
     }
+  }
+
+  public setupScores(): void {
+    //parcourir la liste des joueurs
+    for (const player of this.players) {
+      //initialiser le score de chaque joueur à 0
+      player.setScore(0);
+    }
+  }
+
+  public playServeCard(player: Player): void {
+    const serveCard = this.serveDeck?.drawCard();
+    if (serveCard) {
+      //placer la carte service au debut du deck
+      this.middleDeck?.cards.unshift(serveCard);
+    } else {
+      throw new Error("No serve cards left in the deck.");
+    }
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //à modifier avec des fonctions dans card
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  public isPlayableCard(card: Card): boolean {
+    //verifier la carte au dessus du deck
+    const topCard = this.middleDeck?.cards[0];
+    if (!topCard) {
+      return true; // Si le deck est vide, toute carte peut être jouée
+    } else if (topCard instanceof SpecialCard) {
+      // si la carte au dessus est une special card
+      if (topCard.getDescription() === "winPoint") {
+        //verifier si la carte est une special ou une technical shot
+        if (card instanceof SpecialCard) {
+          // si la carte est un calledOut on peut la jouer sinon non
+          return card.getDescription() === "calledOut";
+        } else return false; // si la carte n'est pas une special card on ne peut pas la jouer
+      } else if (topCard.getDescription() === "joker") {
+        if (card instanceof TechnicalShot) {
+          // si la carte est une technical shot a un joueur au milieu on peut la jouer
+          if (
+            card.getfirstPosition() === "middleRight" ||
+            card.getfirstPosition() === "middleLeft" ||
+            card.getsecondPosition() === "middleLeft" ||
+            card.getsecondPosition() === "middleRight"
+          ) {
+            return true;
+          } else return false; //sinon le technical shot ne peut pas etre joué
+        } else return false; // si la carte n'est pas une technical shot on ne peut pas la jouer
+      } else {
+        //rien n'est jouable sur les autres special card
+        return false;
+      }
+    } else if (topCard instanceof TechnicalShot) {
+      return true; // TODO logique à ajouter
+    } else return false; // Si la carte n'est ni une carte spéciale ni une carte technique, elle ne peut pas être jouée
   }
 
   public getType(): string {

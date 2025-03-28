@@ -7,8 +7,8 @@ import { Hand } from "../models/hand";
 const router = express.Router();
 
 router.get("/start-match", (req, res) => {
-  const Alice = new Player(1, "Alice", 0, new Hand(), true);
-  const Bob = new Player(2, "Bob", 0, new Hand(), false);
+  const Alice = new Player(1, "Alice", 0, new Hand(), true, 1);
+  const Bob = new Player(2, "Bob", 0, new Hand(), false, 2);
   const match = new Match(1, "single", [Alice, Bob], 0, false);
   match.setupMatch(allCards);
 
