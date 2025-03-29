@@ -1,0 +1,4 @@
+Faire une fonction dans card : 
+
+isPlayable(card 1, card 2);
+
