@@ -1,4 +1,5 @@
 import { Card } from "./card";
+import { SpecialCard } from "./special_card";
 
 export class TechnicalShot extends Card {
   public first_position: string;
@@ -28,6 +29,18 @@ export class TechnicalShot extends Card {
     this.first_shot = first_shot;
     this.second_shot = second_shot;
     this.winning_shot = winning_shot;
+  }
+
+  public canSmash(previousCard: Card): boolean {
+    if (previousCard instanceof SpecialCard)
+      return false; // Cannot smash a special card
+    else if (previousCard instanceof TechnicalShot) {
+      // Verifier que le coup précédent est valable pour le smash
+      const validShots = ["long_serv", "clear", "lift", "defense"];
+      return (validShots.includes(previousCard.getfirstShot()) || validShots.includes(previousCard.getsecondShot()));
+    }
+    else
+      return false; // Cannot smash a non-technical card
   }
 
   public getfirstPosition(): string {
