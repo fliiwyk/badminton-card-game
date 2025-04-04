@@ -8,7 +8,7 @@ export class TechnicalShot extends Card {
   public second_target: string;
   public first_shot: string;
   public second_shot: string;
-  public winning_shot: boolean;
+  public current_shot?: string;
 
   public constructor(
     id: number,
@@ -18,8 +18,7 @@ export class TechnicalShot extends Card {
     first_target: string,
     second_target: string,
     first_shot: string,
-    second_shot: string,
-    winning_shot: boolean
+    second_shot: string
   ) {
     super(id, type); // Call the base class constructor with requisecond arguments
     this.first_position = first_position;
@@ -28,7 +27,6 @@ export class TechnicalShot extends Card {
     this.second_target = second_target;
     this.first_shot = first_shot;
     this.second_shot = second_shot;
-    this.winning_shot = winning_shot;
   }
 
   public canSmash(previousCard: Card): boolean {
@@ -37,10 +35,8 @@ export class TechnicalShot extends Card {
     else if (previousCard instanceof TechnicalShot) {
       // Verifier que le coup précédent est valable pour le smash
       const validShots = ["long_serv", "clear", "lift", "defense"];
-      return (validShots.includes(previousCard.getfirstShot()) || validShots.includes(previousCard.getsecondShot()));
-    }
-    else
-      return false; // Cannot smash a non-technical card
+      return validShots.includes(previousCard.getCurrentShot());
+    } else return false; // Cannot smash a non-technical card
   }
 
   public getfirstPosition(): string {
@@ -67,8 +63,12 @@ export class TechnicalShot extends Card {
     return this.second_shot;
   }
 
-  public getWinningShot(): boolean {
-    return this.winning_shot;
+  public getCurrentShot(): string {
+    return this.current_shot ?? "";
+  }
+
+  public setCurrentShot(current_shot: string): void {
+    this.current_shot = current_shot;
   }
 
   public setfirstPosition(first_position: string): void {
@@ -95,8 +95,8 @@ export class TechnicalShot extends Card {
     this.second_shot = second_shot;
   }
 
-  public setWinningShot(winning_shot: boolean): void {
-    this.winning_shot = winning_shot;
+  public setWinningShot(current_shot: string): void {
+    this.current_shot = current_shot;
   }
 
   toJSON() {
@@ -110,7 +110,7 @@ export class TechnicalShot extends Card {
       second_target: this.second_target,
       first_shot: this.first_shot,
       second_shot: this.second_shot,
-      winning_shot: this.winning_shot,
+      current_shot: this.current_shot,
     };
   }
 }

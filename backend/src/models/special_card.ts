@@ -11,22 +11,31 @@ export class SpecialCard extends Card {
 
   public isPlayable(card: Card): boolean {
     if (card instanceof SpecialCard) {
-          // si la carte au dessus est une special card
-          if (card.getDescription() === "winPoint") 
-          // si la carte est un calledOut on peut la jouer sinon non
-            return this.getDescription() === "calledOut";    
-    }   
-    else if(card instanceof TechnicalShot) {
-          if(this.getDescription() === "serveOut") 
-            return card.getType() === "serve";
-          else if(this.getDescription() === "calledOut") 
-            return card.getType() === "technical";
-          else if(this.getDescription() === "winningSmash") 
-            return () //TODO vefifier si le coup précédent permet de faire un smash
-          else
-            return false; //TODO
-          
+      if (this.getDescription() === "winPoint") {
+        // si la carte au dessus est une winPoint
+        return card.getDescription() === "calledOut";
+      } else {
+        return false;
+      }
+    } else if (card instanceof TechnicalShot) {
+      if (this.getDescription() === "serveOut") {
+        return card.getType() === "serve";
+      } else if (this.getDescription() === "calledOut") {
+        return card.getType() === "technical";
+      } else if (this.getDescription() === "winningSmash") {
+        return (
+          card.current_shot === "clear" ||
+          card.current_shot === "lift" ||
+          card.current_shot === "defense" ||
+          card.current_shot === "long_serv"
+        );
+      } else if (this.getDescription() === "joker") {
+        return card.getType() === "technical";
+      } else if (this.getDescription() === "winPoint") {
+        return false;
+      }
     }
+    return false;
   }
 
   public getDescription(): string {
