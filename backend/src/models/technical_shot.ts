@@ -9,6 +9,7 @@ export class TechnicalShot extends Card {
   public first_shot: string;
   public second_shot: string;
   public current_shot?: string;
+  public target?: string;
 
   public constructor(
     id: number,
@@ -29,14 +30,85 @@ export class TechnicalShot extends Card {
     this.second_shot = second_shot;
   }
 
-  public canSmash(previousCard: Card): boolean {
-    if (previousCard instanceof SpecialCard)
-      return false; // Cannot smash a special card
-    else if (previousCard instanceof TechnicalShot) {
-      // Verifier que le coup précédent est valable pour le smash
-      const validShots = ["long_serv", "clear", "lift", "defense"];
-      return validShots.includes(previousCard.getCurrentShot());
-    } else return false; // Cannot smash a non-technical card
+  public canPlayOnTechnical(card: TechnicalShot): boolean {
+    let shotsWeCanPlay: string[] = [];
+      if (card.current_shot === "short_serv") {
+      shotsWeCanPlay = ["drive", "block", "lift", "attack"];
+      if((this.first_position === card.target && shotsWeCanPlay.includes(this.first_shot)) || 
+      (this.second_position === card.target) && shotsWeCanPlay.includes(this.second_shot)) {
+        return true;
+      }
+    } else if (card.current_shot === "long_serv") {
+      shotsWeCanPlay = ["clear", "drop", "slice", "smash"];
+      if((this.first_position === card.target && shotsWeCanPlay.includes(this.first_shot)) || 
+      (this.second_position === card.target) && shotsWeCanPlay.includes(this.second_shot)) {
+        return true;
+      }
+    }
+      else if (card.current_shot === "drop") {
+        shotsWeCanPlay = ["drop", "lift", "rush", "drive"];
+        if((this.first_position === card.target && shotsWeCanPlay.includes(this.first_shot)) || 
+        (this.second_position === card.target) && shotsWeCanPlay.includes(this.second_shot)) {
+          return true;
+        }
+    }
+      else if (card.current_shot === "lift") {
+        shotsWeCanPlay = ["clear", "drop", "slice", "smash"];
+        if((this.first_position === card.target && shotsWeCanPlay.includes(this.first_shot)) || 
+        (this.second_position === card.target) && shotsWeCanPlay.includes(this.second_shot)) {
+          return true;
+        }
+    }
+      else if (card.current_shot === "drive") {
+        shotsWeCanPlay = ["drive", "block", "lift", "attack", "defense", "drop"];
+        if((this.first_position === card.target && shotsWeCanPlay.includes(this.first_shot)) || 
+        (this.second_position === card.target) && shotsWeCanPlay.includes(this.second_shot)) {
+          return true;
+        }
+    }
+      else if (card.current_shot === "block") {
+        shotsWeCanPlay = ["drop", "lift", "rush"];
+        if((this.first_position === card.target && shotsWeCanPlay.includes(this.first_shot)) ||
+        (this.second_position === card.target) && shotsWeCanPlay.includes(this.second_shot)) {
+          return true;
+        }
+    }
+      else if (card.current_shot === "clear") {
+        shotsWeCanPlay = ["clear", "slice", "smash", "drop"];
+        if((this.first_position === card.target && shotsWeCanPlay.includes(this.first_shot)) || 
+        (this.second_position === card.target) && shotsWeCanPlay.includes(this.second_shot)) {
+          return true;
+      }
+    }
+      else if (card.current_shot === "slice") {
+        shotsWeCanPlay = ["drop", "lift", "drive"];
+        if((this.first_position === card.target && shotsWeCanPlay.includes(this.first_shot)) ||
+        (this.second_position === card.target) && shotsWeCanPlay.includes(this.second_shot)) {
+          return true;
+        }
+    }
+      else if (card.current_shot === "smash") {
+        shotsWeCanPlay = ["defense", "block", "lift"];
+        if((this.first_position === card.target && shotsWeCanPlay.includes(this.first_shot)) ||
+        (this.second_position === card.target) && shotsWeCanPlay.includes(this.second_shot)) {
+          return true;
+        }
+    }
+      else if (card.current_shot === "rush" || card.current_shot === "attack") {
+        shotsWeCanPlay = ["block", "lift", "defense", "drive"];
+        if((this.first_position === card.target && shotsWeCanPlay.includes(this.first_shot)) ||
+        (this.second_position === card.target) && shotsWeCanPlay.includes(this.second_shot)) {
+          return true;
+        }
+    }
+      else if (card.current_shot === "defense") {
+        shotsWeCanPlay = ["clear", "drop", "slice", "smash"];
+        if((this.first_position === card.target && shotsWeCanPlay.includes(this.first_shot)) ||
+        (this.second_position === card.target) && shotsWeCanPlay.includes(this.second_shot)) {
+          return true;
+        }
+    } 
+      return false; // Si aucune condition n'est remplie, on ne peut pas jouer la carte
   }
 
   public getfirstPosition(): string {
@@ -111,6 +183,7 @@ export class TechnicalShot extends Card {
       first_shot: this.first_shot,
       second_shot: this.second_shot,
       current_shot: this.current_shot,
+      target: this.target,
     };
   }
 }

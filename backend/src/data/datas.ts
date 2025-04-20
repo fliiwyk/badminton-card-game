@@ -141,7 +141,7 @@ export const allCards: Card[] = [
     "midRight",
     "shortLeft",
     "midRight",
-    "bloc",
+    "block",
     "drive"
   ),
   new TechnicalShot(
@@ -212,7 +212,7 @@ export const allCards: Card[] = [
     "midLeft",
     "shortRight",
     "slice",
-    "bloc"
+    "block"
   ),
   new TechnicalShot(
     22,
@@ -231,7 +231,7 @@ export const allCards: Card[] = [
     "shortRight",
     "shortLeft",
     "midLeft",
-    "bloc",
+    "block",
     "drive"
   ),
   new TechnicalShot(
@@ -262,7 +262,7 @@ export const allCards: Card[] = [
     "midLeft",
     "shortRight",
     "slice",
-    "bloc"
+    "block"
   ),
   new TechnicalShot(
     27,
@@ -362,7 +362,7 @@ export const allCards: Card[] = [
     "midLeft",
     "shortLeft",
     "defense",
-    "bloc"
+    "block"
   ),
   new TechnicalShot(
     37,
@@ -422,7 +422,7 @@ export const allCards: Card[] = [
     "midRight",
     "shortLeft",
     "defense",
-    "bloc"
+    "block"
   ),
   new TechnicalShot(
     43,
@@ -452,7 +452,7 @@ export const allCards: Card[] = [
     "shortRight",
     "shortLeft",
     "drop",
-    "bloc"
+    "block"
   ),
 
   //special cards

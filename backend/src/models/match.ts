@@ -134,14 +134,32 @@ export class Match {
           ) {
             return true;
           } else return false; //sinon le technical shot ne peut pas etre joué
-        } else return false; // si la carte n'est pas une technical shot on ne peut pas la jouer
+        } else return false; // si la carte n'est pas une technical shot on ne peut pas la jouer sur le joker
       } else {
         //rien n'est jouable sur les autres special card
         return false;
       }
     } else if (topCard instanceof TechnicalShot) {
-      return true; // TODO logique à ajouter
-    } else return false; // Si la carte n'est ni une carte spéciale ni une carte technique, elle ne peut pas être jouée
+        //si la carte est un technical shot
+      if (card instanceof TechnicalShot) 
+        return card.canPlayOnTechnical(topCard);
+      else if (card instanceof SpecialCard) {
+        return card.isPlayable(topCard); 
+      }   
+      //si le coup courant de la carte du milieu est un service
+    }  return false; 
+  }
+
+  //Un tour de jeu
+  public playTurn(card: Card): void {
+    if (this.isPlayableCard(card)) {
+      //si la carte est jouable
+      this.middleDeck?.cards.unshift(card); //ajouter la carte au dessus du deck
+      this.currentPlayer.removeCard(card); //retirer la carte de la main du joueur
+      this.nextTurn(); //passer au joueur suivant
+    } else {
+      throw new Error("Card is not playable.");
+    }
   }
 
   public getType(): string {

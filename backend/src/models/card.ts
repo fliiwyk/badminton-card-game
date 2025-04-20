@@ -7,6 +7,7 @@ export class Card {
     this.type = type;
   }
 
+
   public getId(): number {
     return this.id;
   }

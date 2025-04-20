@@ -1,4 +1,3 @@
-Faire une fonction dans card : 
-
-isPlayable(card 1, card 2);
+Dans Match faire la fonction pour un tour de jeu : 
+verifier si score du joueur pair ou impair et mettre en place la logique.
 
