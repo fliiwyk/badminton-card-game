@@ -1,3 +1,2 @@
-Dans Match faire la fonction pour un tour de jeu : 
-verifier si score du joueur pair ou impair et mettre en place la logique.
+Essayer de faire un tour de jeu, creer une nouvelle branche
 

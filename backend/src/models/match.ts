@@ -96,11 +96,20 @@ export class Match {
     }
   }
 
-  public playServeCard(player: Player): void {
+  public playServeCard(): void {
     const serveCard = this.serveDeck?.drawCard();
-    if (serveCard) {
-      //placer la carte service au debut du deck
+    if (serveCard instanceof TechnicalShot) {
+      //Si le score est pair
+      if(this.currentPlayer.getScore()%2 === 0){
+      serveCard.setCurrentShot(serveCard.second_shot);
+      serveCard.target = serveCard.second_target;
       this.middleDeck?.cards.unshift(serveCard);
+      }
+      else if(this.currentPlayer.getScore()%2 === 1){
+        serveCard.setCurrentShot(serveCard.first_shot);
+        serveCard.target = serveCard.first_target;
+        this.middleDeck?.cards.unshift(serveCard);
+      }
     } else {
       throw new Error("No serve cards left in the deck.");
     }
@@ -110,56 +119,59 @@ export class Match {
   //à modifier avec des fonctions dans card
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  public isPlayableCard(card: Card): boolean {
-    //verifier la carte au dessus du deck
+  public isPlayableCard(card: Card): void {
     const topCard = this.middleDeck?.cards[0];
+  
     if (!topCard) {
-      return true; // Si le deck est vide, toute carte peut être jouée
+      card.isPlayable = true; // Si le deck est vide, toute carte peut être jouée
     } else if (topCard instanceof SpecialCard) {
-      // si la carte au dessus est une special card
-      if (topCard.getDescription() === "winPoint") {
-        //verifier si la carte est une special ou une technical shot
+      const topDescription = topCard.getDescription();
+  
+      if (topDescription === "winPoint") {
         if (card instanceof SpecialCard) {
-          // si la carte est un calledOut on peut la jouer sinon non
-          return card.getDescription() === "calledOut";
-        } else return false; // si la carte n'est pas une special card on ne peut pas la jouer
-      } else if (topCard.getDescription() === "joker") {
+          card.isPlayable = card.getDescription() === "calledOut";
+        } else {
+          card.isPlayable = false;
+        }
+      } else if (topDescription === "joker") {
         if (card instanceof TechnicalShot) {
-          // si la carte est une technical shot a un joueur au milieu on peut la jouer
-          if (
-            card.getfirstPosition() === "middleRight" ||
-            card.getfirstPosition() === "middleLeft" ||
-            card.getsecondPosition() === "middleLeft" ||
-            card.getsecondPosition() === "middleRight"
-          ) {
-            return true;
-          } else return false; //sinon le technical shot ne peut pas etre joué
-        } else return false; // si la carte n'est pas une technical shot on ne peut pas la jouer sur le joker
+          const positions = [
+            card.getfirstPosition(),
+            card.getsecondPosition()
+          ];
+          card.isPlayable =
+            positions.includes("middleLeft") || positions.includes("middleRight");
+        } else {
+          card.isPlayable = false;
+        }
       } else {
-        //rien n'est jouable sur les autres special card
-        return false;
+        card.isPlayable = false; // Autres specialCards : rien n'est jouable
       }
+  
     } else if (topCard instanceof TechnicalShot) {
-        //si la carte est un technical shot
-      if (card instanceof TechnicalShot) 
-        return card.canPlayOnTechnical(topCard);
-      else if (card instanceof SpecialCard) {
-        return card.isPlayable(topCard); 
-      }   
-      //si le coup courant de la carte du milieu est un service
-    }  return false; 
+      if (card instanceof TechnicalShot) {
+        card.isPlayable = card.canPlayOnTechnical(topCard);
+      } else if (card instanceof SpecialCard) {
+        card.isPlayable = card.isCardPlayable(topCard);
+      } else {
+        card.isPlayable = false;
+      }
+    } else {
+      card.isPlayable = false;
+    }
   }
+  
 
   //Un tour de jeu
-  public playTurn(card: Card): void {
-    if (this.isPlayableCard(card)) {
-      //si la carte est jouable
-      this.middleDeck?.cards.unshift(card); //ajouter la carte au dessus du deck
-      this.currentPlayer.removeCard(card); //retirer la carte de la main du joueur
-      this.nextTurn(); //passer au joueur suivant
-    } else {
-      throw new Error("Card is not playable.");
+  public playTurn(): void {
+    //poser une carte service dans le deck du milieu
+    while(this.currentPlayer.getHisturn){
+      
     }
+
+    
+    this.playServeCard();
+    
   }
 
   public getType(): string {

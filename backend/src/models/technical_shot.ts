@@ -14,6 +14,7 @@ export class TechnicalShot extends Card {
   public constructor(
     id: number,
     type: string,
+    isPlayable: boolean,
     first_position: string,
     second_position: string,
     first_target: string,
@@ -21,7 +22,7 @@ export class TechnicalShot extends Card {
     first_shot: string,
     second_shot: string
   ) {
-    super(id, type); // Call the base class constructor with requisecond arguments
+    super(id, type, isPlayable); // Call the base class constructor with requisecond arguments
     this.first_position = first_position;
     this.second_position = second_position;
     this.first_target = first_target;
@@ -175,6 +176,7 @@ export class TechnicalShot extends Card {
     return {
       id: this.id,
       type: this.type,
+      isPlayable: this.isPlayable,
       class: "TechnicalShot",
       first_position: this.first_position,
       second_position: this.second_position,
