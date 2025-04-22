@@ -4,12 +4,12 @@ import { TechnicalShot } from "./technical_shot";
 export class SpecialCard extends Card {
   public description: string;
 
-  public constructor(id: number, type: string, description: string) {
-    super(id, type); // Call the base class constructor
+  public constructor(id: number, type: string, isPlayable: boolean, description: string) {
+    super(id, type, isPlayable); // Call the base class constructor
     this.description = description;
   }
 
-  public isPlayable(card: Card): boolean {
+  public isCardPlayable(card: Card): boolean {
     if (card instanceof SpecialCard) {
       if (this.getDescription() === "winPoint") {
         // si la carte au dessus est une winPoint
@@ -54,6 +54,7 @@ export class SpecialCard extends Card {
     return {
       id: this.id,
       type: this.type,
+      isPlayable: this.isPlayable,
       description: this.description,
       class: "SpecialCard",
     };
