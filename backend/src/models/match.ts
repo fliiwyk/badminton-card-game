@@ -169,7 +169,7 @@ export class Match {
       
     }
 
-    }
+    
     this.playServeCard();
     
   }
