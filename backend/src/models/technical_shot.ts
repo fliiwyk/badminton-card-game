@@ -112,6 +112,28 @@ export class TechnicalShot extends Card {
       return false; // Si aucune condition n'est remplie, on ne peut pas jouer la carte
   }
 
+  public isPlayableCard(middleDeckTopCard?: Card): void {
+    if (!middleDeckTopCard) {
+      this.isPlayable = true;
+      return;
+    }
+
+    if (middleDeckTopCard instanceof SpecialCard) {
+      const topDescription = middleDeckTopCard.getDescription();
+      if (topDescription === "joker") {
+        const positions = [this.first_position, this.second_position];
+        this.isPlayable =
+          positions.includes("middleLeft") || positions.includes("middleRight");
+      } else {
+        this.isPlayable = false;
+      }
+    } else if (middleDeckTopCard instanceof TechnicalShot) {
+      this.isPlayable = this.canPlayOnTechnical(middleDeckTopCard);
+    } else {
+      this.isPlayable = false;
+    }
+  }
+
   public getfirstPosition(): string {
     return this.first_position;
   }

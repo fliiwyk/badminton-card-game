@@ -9,7 +9,27 @@ export class SpecialCard extends Card {
     this.description = description;
   }
 
-  public isCardPlayable(card: Card): boolean {
+  public isPlayableCard(middleDeckTopCard?: Card): void {
+    if (!middleDeckTopCard) {
+      this.isPlayable = false;
+      return;
+    }
+
+    if (middleDeckTopCard instanceof SpecialCard) {
+      const topDescription = middleDeckTopCard.getDescription();
+      if (topDescription === "winPoint") {
+        this.isPlayable = this.getDescription() === "calledOut";
+      } else {
+        this.isPlayable = false;
+      }
+    } else if (middleDeckTopCard instanceof TechnicalShot) {
+      this.isPlayable = this.isSpecialCardPlayable(middleDeckTopCard);
+    } else {
+      this.isPlayable = false;
+    }
+  }
+
+  public isSpecialCardPlayable(card: Card): boolean {
     if (card instanceof SpecialCard) {
       if (this.getDescription() === "winPoint") {
         // si la carte au dessus est une winPoint

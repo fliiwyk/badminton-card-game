@@ -45,6 +45,10 @@ export class Player {
     return this.histurn;
   }
 
+  public getCards(): any[] {
+    return this.hand.getCards();
+  }
+  
   public setId(id: number): void {
     this.id = id;
   }

@@ -4,6 +4,10 @@ import { TechnicalShot } from "./technical_shot";
 import { Deck } from "./deck";
 import { SpecialCard } from "./special_card";
 import { Hand } from "./hand";
+import readline from "readline"; 
+
+
+
 
 export class Match {
   public id: number;
@@ -119,55 +123,59 @@ export class Match {
   //à modifier avec des fonctions dans card
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  public isPlayableCard(card: Card): void {
-    const topCard = this.middleDeck?.cards[0];
   
-    if (!topCard) {
-      card.isPlayable = true; // Si le deck est vide, toute carte peut être jouée
-    } else if (topCard instanceof SpecialCard) {
-      const topDescription = topCard.getDescription();
+
+  public async playTurn(): Promise<void> {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
   
-      if (topDescription === "winPoint") {
-        if (card instanceof SpecialCard) {
-          card.isPlayable = card.getDescription() === "calledOut";
-        } else {
-          card.isPlayable = false;
-        }
-      } else if (topDescription === "joker") {
-        if (card instanceof TechnicalShot) {
-          const positions = [
-            card.getfirstPosition(),
-            card.getsecondPosition()
-          ];
-          card.isPlayable =
-            positions.includes("middleLeft") || positions.includes("middleRight");
-        } else {
-          card.isPlayable = false;
-        }
-      } else {
-        card.isPlayable = false; // Autres specialCards : rien n'est jouable
+    console.log("Voici les cartes que vous pouvez jouer :");
+  
+    const playableCards: { index: number; card: Card }[] = [];
+    const topCard = this.middleDeck && this.middleDeck.cards[0]; // La carte du dessus du deck du milieu
+  
+    const cards = this.currentPlayer.getHand().getCards();
+  
+    for (let index = 0; index < cards.length; index++) {
+      const card = cards[index];
+      card.isPlayableCard(topCard);
+  
+      if (card.isPlayable) {
+        playableCards.push({ index, card });
+  
+        console.log(`Carte ${index + 1}`);
+        console.log(card.toJSON());
       }
+    }
   
-    } else if (topCard instanceof TechnicalShot) {
-      if (card instanceof TechnicalShot) {
-        card.isPlayable = card.canPlayOnTechnical(topCard);
-      } else if (card instanceof SpecialCard) {
-        card.isPlayable = card.isCardPlayable(topCard);
-      } else {
-        card.isPlayable = false;
-      }
+    const question = (str: string) => new Promise<string>((resolve) => rl.question(str, resolve));
+  
+    const answer = await question("Entrez le numéro de la carte que vous voulez jouer : ");
+    const chosenIndex = parseInt(answer, 10) - 1;
+  
+    const chosenCard = playableCards.find(pc => pc.index === chosenIndex)?.card;
+  
+    if (chosenCard) {
+      console.log("Vous avez choisi :");
+      console.log(chosenCard.toJSON());
+      // Jouer la carte ici
     } else {
-      card.isPlayable = false;
+      console.log("Choix invalide. Veuillez réessayer.");
     }
   }
   
+  
+  
+  
+  
+
+  
 
   //Un tour de jeu
-  public playTurn(): void {
-    //poser une carte service dans le deck du milieu
-    while(this.currentPlayer.getHisturn){
-      
-    }
+  public playPoint(): void {
+ 
 
     
     this.playServeCard();

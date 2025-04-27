@@ -1,2 +1,2 @@
-Essayer de faire un tour de jeu, creer une nouvelle branche
-
+La suite de playTurn c'est à dire jouer une carte, à définir dans Player, sera appellée dans playTurn comme 
+current_player.playCard(card, middleDeck)

@@ -2,6 +2,9 @@ import { allCards } from "../data/datas";
 import { Match } from "../models/match";
 import { Player } from "../models/player";
 import { Hand } from "../models/hand";
+import { Card } from "../models/card";
+
+
 
 console.log("=== DÉMARRAGE D’UN MATCH TEST ===");
 
@@ -13,17 +16,25 @@ function runTest() {
   
     match.setupMatch(allCards);
     match.playServeCard();
+
+
   
     match.players.forEach((player) => {
       console.log(`--- Player: ${player.getName()} ---`);
       player.getHand().getCards().forEach((card) => {
-        match.isPlayableCard(card);
+        card.isPlayableCard(match.middleDeck?.cards[0]);
+        console.log(card.isPlayable);
         console.log({ card: card.toJSON(),});
       });
     });
-  
+
     const middleDeckTopCard = match.middleDeck?.cards[0]?.toJSON();
     console.log("Middle deck top card:", middleDeckTopCard);
+  
+
+
+    console.log("-----------------------------------------------------------------------------------------------");
+    match.playTurn();
   }
   
   // Lancer directement le test
