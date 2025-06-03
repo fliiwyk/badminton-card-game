@@ -1,5 +1,6 @@
 import { Hand } from "./hand";
 import { Deck } from "./deck";
+import { SpecialCard } from "./special_card";
 
 export class Player {
   private id: number;
@@ -24,6 +25,19 @@ export class Player {
     this.histurn = histurn;
     this.team = 0;
   }
+
+ public hasWinPointInHand(): boolean {
+  for (const element of this.hand.cards) {
+    if (element instanceof SpecialCard) {
+      if (element.getDescription() === "winPoint") {
+        console.log(element.getDescription());
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 
   public getId(): number {
     return this.id;

@@ -160,10 +160,35 @@ export class Match {
     if (chosenCard) {
       console.log("Vous avez choisi :");
       console.log(chosenCard.toJSON());
-      // Jouer la carte ici
+      this.middleDeck?.cards.unshift(chosenCard); 
+      this.currentPlayer.getHand().removeCard(chosenCard); // Retirer la carte de la main du joueur
+      console.log(`Carte jouée avec succès par ${this.currentPlayer.getName()}.`);
+
+      //si le joueur a une carte spéciale winPoint
+      if (this.currentPlayer.hasWinPointInHand()){
+        console.log("Vous avez une carte spéciale 'winPoint' dans votre main.");
+        const winPointCard = this.currentPlayer.getHand().getCards().find(card => card instanceof SpecialCard && card.getDescription() === "winPoint");
+        
+        if (winPointCard) {
+          console.log("Voulez-vous jouer la carte 'winPoint' ? (oui/non)");
+          const response = await question(""); 
+          if (response.toLowerCase() === "oui") {
+          this.middleDeck?.cards.unshift(winPointCard); 
+            console.log("Carte winPoint jouée avec succès.");
+            this.currentPlayer.getHand().removeCard(winPointCard); 
+          } else {
+            console.log("Vous avez choisi de ne pas jouer la carte 'winPoint'.");
+          }
+        }
+      }
+      else {
+        console.log("Vous n'avez pas de carte spéciale 'winPoint' dans votre main.");
+      }
+      this.nextTurn(); 
     } else {
       console.log("Choix invalide. Veuillez réessayer.");
     }
+
   }
   
   
@@ -251,6 +276,11 @@ export class Match {
   }
 
   public nextTurn(): void {
+    // Passer au joueur suivant
+    const currentIndex = this.players.indexOf(this.currentPlayer);
+    const nextIndex = (currentIndex + 1) % this.players.length;
+    this.currentPlayer = this.players[nextIndex];
+    // Incrémenter le tour
     this.turn++;
   }
 }
