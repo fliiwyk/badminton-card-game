@@ -17,14 +17,21 @@ function startMatch() {
 
 // 3. Renvoyer l'état actuel du jeu
 function getGameState() {
+  const middleCard = match.middleDeck?.cards[0];
+
   return {
-    middleDeck: match.middleDeck?.cards[0]?.toJSON(),
+    middleDeck: middleCard?.toJSON(),
     currentPlayer: {
       name: match.currentPlayer.getName(),
       hand: match.currentPlayer
         .getHand()
         .getCards()
-        .map((c) => c.toJSON()),
+        .map((c) => {
+          c.isPlayableCard(middleCard);
+          return {
+            ...c.toJSON(),
+          };
+        }),
     },
     score: match.players.map((p) => ({
       name: p.getName(),

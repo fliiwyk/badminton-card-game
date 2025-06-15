@@ -1,4 +1,3 @@
-
 export class Card {
   public id: number;
   public type: string;
@@ -8,18 +7,14 @@ export class Card {
     this.id = id;
     this.type = type;
     this.isPlayable = isPlayable; // Initialiser la propriété isPlayable
-
   }
-  
 
   public isPlayableCard(middleDeckTopCard?: Card): void {
     this.isPlayable = false;
   }
-  
-  
 
   public getId(): number {
-    return this.id; 
+    return this.id;
   }
 
   public getType(): string {
@@ -33,7 +28,6 @@ export class Card {
   public setType(type: string): void {
     this.type = type;
   }
-
 
   public toJSON() {
     return {

@@ -1,15 +1,20 @@
 type Props = {
-  cardId: number;
+  card: any;
 };
 
-export default function CardImage({ cardId }: Props) {
-  const imagePath = `/cards/${cardId}front.png`;
+export default function CardImage({ card }: Props) {
+  const imagePath = `/cards/${card.id}front.png`;
 
   return (
     <img
       src={imagePath}
-      alt={`Carte ${cardId}`}
-      style={{ width: "120px", height: "auto" }}
+      alt={`Carte ${card.id}`}
+      style={{
+        width: "100px",
+        border: card.isPlayable ? "5px solid limegreen" : "1px solid gray",
+        boxShadow: card.isPlayable ? "0 0 10px limegreen" : "none",
+        borderRadius: "8px",
+      }}
     />
   );
 }

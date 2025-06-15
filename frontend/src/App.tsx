@@ -23,9 +23,10 @@ function App() {
     <div style={{ padding: "2rem", textAlign: "center" }}>
       <h1>Carte du milieu</h1>
       {gameState ? (
-        <div>
-            <CardImage cardId={gameState.middleDeck.id} />
+       <div style={{ transform: "rotate(180deg)" }}>
+            <CardImage card={gameState.middleDeck} />
         </div>
+
       ) : (
         <p>Aucune carte disponible</p>
       )}
