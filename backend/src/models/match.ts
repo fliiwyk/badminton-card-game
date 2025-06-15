@@ -4,10 +4,8 @@ import { TechnicalShot } from "./technical_shot";
 import { Deck } from "./deck";
 import { SpecialCard } from "./special_card";
 import { Hand } from "./hand";
-import readline from "readline"; 
-
-
-
+import readline from "readline";
+import * as readlineSync from "readline-sync";
 
 export class Match {
   public id: number;
@@ -104,15 +102,20 @@ export class Match {
     const serveCard = this.serveDeck?.drawCard();
     if (serveCard instanceof TechnicalShot) {
       //Si le score est pair
-      if(this.currentPlayer.getScore()%2 === 0){
-      serveCard.setCurrentShot(serveCard.second_shot);
-      serveCard.target = serveCard.second_target;
-      this.middleDeck?.cards.unshift(serveCard);
-      }
-      else if(this.currentPlayer.getScore()%2 === 1){
+      if (this.currentPlayer.getScore() % 2 === 0) {
+        serveCard.setCurrentShot(serveCard.second_shot);
+        serveCard.target = serveCard.second_target;
+        this.middleDeck?.cards.unshift(serveCard);
+        //changer le joueur actuel
+        const other = this.players.find((p) => p !== this.currentPlayer)!;
+        this.currentPlayer = other;
+      } else if (this.currentPlayer.getScore() % 2 === 1) {
         serveCard.setCurrentShot(serveCard.first_shot);
         serveCard.target = serveCard.first_target;
         this.middleDeck?.cards.unshift(serveCard);
+        //changer le joueur actuel
+        const other = this.players.find((p) => p !== this.currentPlayer)!;
+        this.currentPlayer = other;
       }
     } else {
       throw new Error("No serve cards left in the deck.");
@@ -123,89 +126,120 @@ export class Match {
   //à modifier avec des fonctions dans card
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  
+  /**
+   * Joue un tour pour le joueur actuel.
+   * @returns {Promise<boolean>} - Retourne True si l'echange continue, sinon False.
+   */
 
-  public async playTurn(): Promise<void> {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-  
+  public playTurn(): boolean {
     console.log("Voici les cartes que vous pouvez jouer :");
-  
+
     const playableCards: { index: number; card: Card }[] = [];
-    const topCard = this.middleDeck && this.middleDeck.cards[0]; // La carte du dessus du deck du milieu
-  
+    const topCard = this.middleDeck?.cards[0];
     const cards = this.currentPlayer.getHand().getCards();
-  
+
+    // Recherche des cartes jouables
     for (let index = 0; index < cards.length; index++) {
       const card = cards[index];
       card.isPlayableCard(topCard);
-  
       if (card.isPlayable) {
         playableCards.push({ index, card });
-  
         console.log(`Carte ${index + 1}`);
         console.log(card.toJSON());
       }
     }
-  
-    const question = (str: string) => new Promise<string>((resolve) => rl.question(str, resolve));
-  
-    const answer = await question("Entrez le numéro de la carte que vous voulez jouer : ");
-    const chosenIndex = parseInt(answer, 10) - 1;
-  
-    const chosenCard = playableCards.find(pc => pc.index === chosenIndex)?.card;
-  
-    if (chosenCard) {
-      console.log("Vous avez choisi :");
-      console.log(chosenCard.toJSON());
-      this.middleDeck?.cards.unshift(chosenCard); 
-      this.currentPlayer.getHand().removeCard(chosenCard); // Retirer la carte de la main du joueur
-      console.log(`Carte jouée avec succès par ${this.currentPlayer.getName()}.`);
 
-      //si le joueur a une carte spéciale winPoint
-      if (this.currentPlayer.hasWinPointInHand()){
-        console.log("Vous avez une carte spéciale 'winPoint' dans votre main.");
-        const winPointCard = this.currentPlayer.getHand().getCards().find(card => card instanceof SpecialCard && card.getDescription() === "winPoint");
-        
-        if (winPointCard) {
-          console.log("Voulez-vous jouer la carte 'winPoint' ? (oui/non)");
-          const response = await question(""); 
-          if (response.toLowerCase() === "oui") {
-          this.middleDeck?.cards.unshift(winPointCard); 
-            console.log("Carte winPoint jouée avec succès.");
-            this.currentPlayer.getHand().removeCard(winPointCard); 
-          } else {
-            console.log("Vous avez choisi de ne pas jouer la carte 'winPoint'.");
-          }
-        }
+    // Pas de carte jouable
+    if (playableCards.length === 0) {
+      console.log("Aucune carte jouable dans votre main.");
+      console.log("Vous avez perdu le point et devez piocher une carte.");
+      const drawnCard = this.mainDeck?.drawCard();
+      if (drawnCard) {
+        this.currentPlayer.getHand().addCard(drawnCard);
+        console.log("Vous avez pioché une carte :", drawnCard.toJSON());
+      } else {
+        console.log(
+          "Le deck principal est vide, vous ne pouvez pas piocher de carte."
+        );
       }
-      else {
-        console.log("Vous n'avez pas de carte spéciale 'winPoint' dans votre main.");
-      }
-      this.nextTurn(); 
-    } else {
-      console.log("Choix invalide. Veuillez réessayer.");
+      this.giveAPointToPlayer(
+        this.players.find((p) => p !== this.currentPlayer)!
+      );
+      //VERIFIER ICI PROBLEME AVEC LE CURRENT PLAYER
+      this.nextTurn();
+      return false;
     }
 
-  }
-  
-  
-  
-  
-  
+    // Lecture synchrone du choix
+    const answer = readlineSync.question(
+      "Entrez le numéro de la carte que vous voulez jouer : "
+    );
+    const chosenIndex = parseInt(answer, 10) - 1;
+    const chosenCard = playableCards.find(
+      (pc) => pc.index === chosenIndex
+    )?.card;
 
-  
+    if (!chosenCard) {
+      console.log("Choix invalide. Le rallye s'arrête.");
+      return false;
+    }
+
+    // On joue la carte
+    console.log("Vous avez choisi :", chosenCard.toJSON());
+    this.middleDeck?.cards.unshift(chosenCard);
+    this.currentPlayer.getHand().removeCard(chosenCard);
+    console.log(`Carte jouée avec succès par ${this.currentPlayer.getName()}.`);
+
+    // Gestion des cartes spéciales
+    if (this.currentPlayer.hasWinPointInHand()) {
+      console.log("Vous avez une carte spéciale 'winPoint' dans votre main.");
+      const playWin = readlineSync.keyInYN(
+        "Voulez-vous jouer la carte 'winPoint' ? "
+      );
+      if (playWin) {
+        const winPointCard = this.currentPlayer
+          .getHand()
+          .getCards()
+          .find(
+            (c) => c instanceof SpecialCard && c.getDescription() === "winPoint"
+          )!;
+        this.middleDeck?.cards.unshift(winPointCard);
+        this.currentPlayer.getHand().removeCard(winPointCard);
+        console.log("Carte 'winPoint' jouée.");
+        const other = this.players.find((p) => p !== this.currentPlayer)!;
+        if (other.hasCalledOutInHand()) {
+          const playOut = readlineSync.keyInYN(
+            `${other.getName()} a une carte 'callOut'. Voulez-vous l'utiliser ? `
+          );
+          if (playOut) {
+            const outCard = other
+              .getHand()
+              .getCards()
+              .find(
+                (c) =>
+                  c instanceof SpecialCard && c.getDescription() === "callOut"
+              )!;
+            this.middleDeck?.cards.unshift(outCard);
+            other.getHand().removeCard(outCard);
+            console.log(`Carte 'Out' jouée par ${other.getName()}.`);
+            this.giveAPointToPlayer(other);
+            return false;
+          }
+        } else {
+          console.log("Aucun 'callOut' chez l'adversaire.");
+          this.giveAPointToPlayer(this.currentPlayer);
+          return false;
+        }
+      } else {
+        console.log("Vous n'avez pas joué la carte 'winPoint'.");
+      }
+    }
+
+    this.nextTurn();
+    return true;
+  }
 
   //Un tour de jeu
-  public playPoint(): void {
- 
-
-    
-    this.playServeCard();
-    
-  }
 
   public getType(): string {
     return this.type;
@@ -282,5 +316,44 @@ export class Match {
     this.currentPlayer = this.players[nextIndex];
     // Incrémenter le tour
     this.turn++;
+    console.log(
+      `C'est maintenant le tour de ${this.currentPlayer.getName()}. Tour numéro ${
+        this.turn
+      }.`
+    );
+    // Vérifier si le match est terminé
+  }
+
+  public giveAPointToPlayer(player: Player): void {
+    player.setScore(player.getScore() + 1);
+    this.currentPlayer = player; // Mettre à jour le joueur actuel
+    console.log(
+      `${player.getName()} a marqué un point ! Nouveau score : ${player.getScore()}`
+    );
+
+    // Parcourir le deck du milieu et vérifier si une carte de service est présente
+    if (this.middleDeck && this.middleDeck.cards.length > 0) {
+      const topCard = this.middleDeck.cards[0];
+      if (topCard instanceof TechnicalShot && topCard.getType() === "serve") {
+        // Remettre la carte de service dans le deck de service
+        if (this.serveDeck) {
+          this.serveDeck.cards.push(topCard);
+          this.serveDeck.shuffle(); // Mélanger le deck de service après avoir ajouté la carte
+        } else {
+          console.log(
+            "Aucun deck de service disponible pour remettre la carte."
+          );
+        }
+      } else {
+        // Si la carte du dessus n'est pas une carte de service, on ne la remet dans le deck principal
+        this.mainDeck?.cards.push(topCard);
+      }
+    } else {
+      console.log("Le deck du milieu est vide, aucune carte à remettre.");
+    }
+    // Réinitialiser le deck du milieu
+    if (this.middleDeck) {
+      this.middleDeck.cards = []; // Réinitialiser le deck du milieu
+    }
   }
 }

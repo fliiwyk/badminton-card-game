@@ -1,2 +1,1 @@
-La suite de playTurn c'est à dire jouer une carte, à définir dans Player, sera appellée dans playTurn comme 
-current_player.playCard(card, middleDeck)
+ligne 162 verifier le bug

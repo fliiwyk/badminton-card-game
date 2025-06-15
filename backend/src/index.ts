@@ -1,16 +1,17 @@
 import express from "express";
 import cors from "cors";
-import matchRoutes from "./routes/matchRoutes";
+import gameRoutes from "./routes/game"; // 👈 le fichier que tu viens de créer
 
 const app = express();
-const PORT = 5000;
-
-app.use(cors()); // 👈 autorise toutes les origines
+app.use(
+  cors({
+    origin: "http://localhost:5173", // ✅ autorise les appels venant du frontend
+  })
+);
 app.use(express.json());
 
-// 👇 toutes les routes du fichier matchRoutes seront accessibles sous /api
-app.use("/api", matchRoutes);
+app.use("/api/game", gameRoutes); // 👈 tes routes accessibles depuis le frontend
 
-app.listen(PORT, () => {
-  console.log(`✅ Backend lancé sur http://localhost:${PORT}`);
+app.listen(3000, () => {
+  console.log("Serveur lancé sur http://localhost:3000");
 });

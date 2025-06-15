@@ -26,18 +26,28 @@ export class Player {
     this.team = 0;
   }
 
- public hasWinPointInHand(): boolean {
-  for (const element of this.hand.cards) {
-    if (element instanceof SpecialCard) {
-      if (element.getDescription() === "winPoint") {
-        console.log(element.getDescription());
-        return true;
+  public hasCalledOutInHand(): boolean {
+    for (const element of this.hand.cards) {
+      if (element instanceof SpecialCard) {
+        if (element.getDescription() === "callOut") {
+          return true;
+        }
       }
     }
+    return false;
   }
-  return false;
-}
 
+  public hasWinPointInHand(): boolean {
+    for (const element of this.hand.cards) {
+      if (element instanceof SpecialCard) {
+        if (element.getDescription() === "winPoint") {
+          console.log(element.getDescription());
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 
   public getId(): number {
     return this.id;
@@ -62,7 +72,7 @@ export class Player {
   public getCards(): any[] {
     return this.hand.getCards();
   }
-  
+
   public setId(id: number): void {
     this.id = id;
   }
@@ -97,5 +107,9 @@ export class Player {
 
   public getTeam(): number {
     return this.team;
+  }
+
+  public getPoints(): number {
+    return this.score;
   }
 }
