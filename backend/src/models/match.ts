@@ -2,12 +2,7 @@ import { Player } from "./player";
 import { Card } from "./card";
 import { TechnicalShot } from "./technical_shot";
 import { Deck } from "./deck";
-import { SpecialCard } from "./special_card";
 import { Hand } from "./hand";
-import readline from "readline"; 
-
-
-
 
 export class Match {
   public id: number;
@@ -17,9 +12,13 @@ export class Match {
   public serveDeck?: Deck;
   public mainDeck?: Deck;
   public middleDeck?: Deck;
-  public winner!: Player;
+  public winner?: Player;
   public turn: number;
   public end: boolean;
+  public phase: string = "setup"; // setup, serve, play, ended
+  public drawsRemaining: number = 3;
+  public message: string = "";
+  public maxScore: number = 21;
 
   public constructor(
     id: number,
@@ -36,20 +35,17 @@ export class Match {
   }
 
   public setupMatch(allCards: Card[]): void {
-    let allCardsDeck = new Deck();
+    const allCardsDeck = new Deck();
     allCardsDeck.setCards(allCards);
 
     this.serveDeck = this.setupServeDeck(allCardsDeck);
     this.mainDeck = allCardsDeck;
     this.middleDeck = new Deck();
 
-    // Mélanger le deck de cartes
     this.serveDeck.shuffle();
     this.mainDeck.shuffle();
 
-    // Distribuer les cartes aux joueurs
     this.drawCards(this.mainDeck);
-
     this.setupScores();
     this.currentPlayer = this.players[0];
     this.turn = 1;
@@ -58,7 +54,6 @@ export class Match {
 
   public setupServeDeck(deck: Deck): Deck {
     const serveDeck = new Deck();
-
     const remainingCards: Card[] = [];
 
     for (const card of deck.cards) {
@@ -70,32 +65,24 @@ export class Match {
     }
 
     deck.cards = remainingCards;
-
     return serveDeck;
   }
 
   public drawCards(deck: Deck): void {
-    if (this.type === "double") {
-      for (let i = 0; i < this.players.length; i++) {
-        const hand = new Hand(); // ← nouvelle instance pour CHAQUE joueur
-        hand.setCards(deck.distributeCardsDouble());
-        this.players[i].setHand(hand);
+    const count = this.type === "double" ? 4 : 7;
+    for (const player of this.players) {
+      const hand = new Hand();
+      const cards: Card[] = [];
+      for (let i = 0; i < count && deck.cards.length > 0; i++) {
+        cards.push(deck.drawCard());
       }
-    } else if (this.type === "single") {
-      for (let i = 0; i < this.players.length; i++) {
-        const hand = new Hand();
-        hand.setCards(deck.distributeCardsSingle());
-        this.players[i].setHand(hand);
-      }
-    } else {
-      throw new Error("Invalid match type");
+      hand.setCards(cards);
+      player.setHand(hand);
     }
   }
 
   public setupScores(): void {
-    //parcourir la liste des joueurs
     for (const player of this.players) {
-      //initialiser le score de chaque joueur à 0
       player.setScore(0);
     }
   }
@@ -103,91 +90,94 @@ export class Match {
   public playServeCard(): void {
     const serveCard = this.serveDeck?.drawCard();
     if (serveCard instanceof TechnicalShot) {
-      //Si le score est pair
-      if(this.currentPlayer.getScore()%2 === 0){
-      serveCard.setCurrentShot(serveCard.second_shot);
-      serveCard.target = serveCard.second_target;
-      this.middleDeck?.cards.unshift(serveCard);
-      }
-      else if(this.currentPlayer.getScore()%2 === 1){
+      if (this.currentPlayer.getScore() % 2 === 0) {
+        serveCard.setCurrentShot(serveCard.second_shot);
+        serveCard.target = serveCard.second_target;
+      } else {
         serveCard.setCurrentShot(serveCard.first_shot);
         serveCard.target = serveCard.first_target;
-        this.middleDeck?.cards.unshift(serveCard);
       }
+      this.middleDeck?.cards.unshift(serveCard);
     } else {
       throw new Error("No serve cards left in the deck.");
     }
   }
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  //à modifier avec des fonctions dans card
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  public getOpponent(): Player {
+    return this.players.find((p) => p.getId() !== this.currentPlayer.getId())!;
+  }
 
-  
+  public switchTurn(): void {
+    this.currentPlayer = this.getOpponent();
+    this.turn++;
+  }
 
-  public async playTurn(): Promise<void> {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-  
-    console.log("Voici les cartes que vous pouvez jouer :");
-  
-    const playableCards: { index: number; card: Card }[] = [];
-    const topCard = this.middleDeck && this.middleDeck.cards[0]; // La carte du dessus du deck du milieu
-  
-    const cards = this.currentPlayer.getHand().getCards();
-  
-    for (let index = 0; index < cards.length; index++) {
-      const card = cards[index];
-      card.isPlayableCard(topCard);
-  
-      if (card.isPlayable) {
-        playableCards.push({ index, card });
-  
-        console.log(`Carte ${index + 1}`);
-        console.log(card.toJSON());
+  public refillHand(player: Player): void {
+    const minCards = this.type === "double" ? 4 : 7;
+    while (
+      player.getHand().getCards().length < minCards &&
+      this.mainDeck &&
+      this.mainDeck.cards.length > 0
+    ) {
+      player.receiveCard(this.mainDeck.drawCard());
+    }
+  }
+
+  public resolvePoint(scorer: Player): void {
+    // Return technical/special cards from middleDeck to bottom of mainDeck
+    if (this.middleDeck) {
+      for (const card of this.middleDeck.cards) {
+        if (card instanceof TechnicalShot && card.getType() !== "serve") {
+          // Reset card state
+          card.setCurrentShot("");
+          card.target = undefined;
+          card.isPlayable = false;
+          this.mainDeck?.cards.push(card);
+        }
+        // Serve cards go back to serve deck
+        if (card instanceof TechnicalShot && card.getType() === "serve") {
+          card.setCurrentShot("");
+          card.target = undefined;
+          card.isPlayable = false;
+          this.serveDeck?.cards.push(card);
+        }
       }
+      this.middleDeck.cards = [];
     }
-  
-    const question = (str: string) => new Promise<string>((resolve) => rl.question(str, resolve));
-  
-    const answer = await question("Entrez le numéro de la carte que vous voulez jouer : ");
-    const chosenIndex = parseInt(answer, 10) - 1;
-  
-    const chosenCard = playableCards.find(pc => pc.index === chosenIndex)?.card;
-  
-    if (chosenCard) {
-      console.log("Vous avez choisi :");
-      console.log(chosenCard.toJSON());
-      // Jouer la carte ici
+
+    // Refill hands
+    for (const player of this.players) {
+      this.refillHand(player);
+    }
+
+    // Check win condition
+    if (scorer.getScore() >= this.maxScore) {
+      this.end = true;
+      this.winner = scorer;
+      this.phase = "ended";
+      this.message = `${scorer.getName()} remporte le match ${scorer.getScore()} !`;
+      return;
+    }
+
+    // Reset draws
+    this.drawsRemaining = 3;
+
+    // Scorer serves next
+    this.currentPlayer = scorer;
+
+    // Play next serve
+    if (this.serveDeck && this.serveDeck.cards.length > 0) {
+      this.playServeCard();
+      this.phase = "play";
+      const receiver = this.players.find((p) => p.getId() !== scorer.getId())!;
+      this.message += ` ${scorer.getName()} sert.`;
+      // After serve, receiver plays
+      this.currentPlayer = receiver;
     } else {
-      console.log("Choix invalide. Veuillez réessayer.");
+      this.end = true;
+      this.phase = "ended";
+      this.message = "Plus de cartes service ! Match termine.";
     }
-  }
-  
-  
-  
-  
-  
-
-  
-
-  //Un tour de jeu
-  public playPoint(): void {
- 
-
-    
-    this.playServeCard();
-    
-  }
-
-  public getType(): string {
-    return this.type;
-  }
-
-  public setType(type: string): void {
-    this.type = type;
   }
 
   public getCurrentPlayer(): Player {
@@ -206,7 +196,7 @@ export class Match {
     return this.players;
   }
 
-  public getWinner(): Player {
+  public getWinner(): Player | undefined {
     return this.winner;
   }
 
@@ -218,39 +208,12 @@ export class Match {
     return this.end;
   }
 
-  public setId(id: number): void {
-    this.id = id;
-  }
-
-  public setPlayers(players: Player[]): void {
-    this.players = players;
-  }
-
-  public setWinner(winner: Player): void {
-    this.winner = winner;
-  }
-
-  public setTurn(turn: number): void {
-    this.turn = turn;
-  }
-
   public setEnd(end: boolean): void {
     this.end = end;
   }
 
-  public addPlayer(player: Player): void {
-    this.players.push(player);
-  }
-
-  public removePlayer(player: Player): void {
-    this.players = this.players.filter((p) => p !== player);
-  }
-
   public endMatch(): void {
     this.end = true;
-  }
-
-  public nextTurn(): void {
-    this.turn++;
+    this.phase = "ended";
   }
 }

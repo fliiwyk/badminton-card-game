@@ -50,7 +50,8 @@ export class SpecialCard extends Card {
           card.current_shot === "long_serv"
         );
       } else if (this.getDescription() === "joker") {
-        return card.getType() === "technical";
+        // Joker can be played on any TechnicalShot (including serves)
+        return true;
       } else if (this.getDescription() === "winPoint") {
         return false;
       }

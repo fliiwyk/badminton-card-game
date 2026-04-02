@@ -1,5 +1,6 @@
 import { Hand } from "./hand";
 import { Deck } from "./deck";
+import { Card } from "./card";
 
 export class Player {
   private id: number;
@@ -23,6 +24,11 @@ export class Player {
     this.hand = hand;
     this.histurn = histurn;
     this.team = 0;
+  }
+
+  public playCard(card: Card, middleDeck: Deck): void {
+    middleDeck.cards.unshift(card);
+    this.hand.removeCard(card);
   }
 
   public getId(): number {

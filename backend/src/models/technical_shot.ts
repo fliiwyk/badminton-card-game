@@ -121,9 +121,8 @@ export class TechnicalShot extends Card {
     if (middleDeckTopCard instanceof SpecialCard) {
       const topDescription = middleDeckTopCard.getDescription();
       if (topDescription === "joker") {
-        const positions = [this.first_position, this.second_position];
-        this.isPlayable =
-          positions.includes("middleLeft") || positions.includes("middleRight");
+        // After a joker, any technical card can be played
+        this.isPlayable = true;
       } else {
         this.isPlayable = false;
       }

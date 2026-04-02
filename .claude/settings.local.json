@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(curl -s -X POST http://localhost:5000/api/match/start -H \"Content-Type: application/json\" -d '{\"player1Name\":\"Test1\",\"player2Name\":\"Test2\"}')",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('Match:', d['matchId']\\); print\\('Phase:', d['phase']\\); print\\('Current:', d['currentPlayerId']\\); print\\('CanDraw:', d['canDraw']\\)\")",
+      "Bash(npx ts-node -e ':*)",
+      "Bash(npx ts-node --esm -e ':*)",
+      "Bash(taskkill //F //IM node.exe)"
+    ]
+  }
+}
