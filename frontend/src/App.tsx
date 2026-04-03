@@ -55,34 +55,60 @@ function formatZone(zone?: string): string {
 }
 
 /* ===== SVG Badminton Court ===== */
-function CourtSVG() {
-  // Court viewed from above, horizontal layout
-  // Real proportions: 13.4m x 6.1m (singles: 5.18m wide)
-  const w = 1000;
-  const h = 460;
+function CourtSVG({ targetZone, currentPlayerIsTop }: { targetZone?: string; currentPlayerIsTop?: boolean }) {
+  // Court viewed from above, portrait layout
+  // Real proportions: 13.4m x 6.1m
+  const w = 500;
+  const h = 800;
   const pad = 20;
   const cx = w / 2;
   const cy = h / 2;
-  // Court rect
   const cLeft = pad;
   const cRight = w - pad;
   const cTop = pad;
   const cBottom = h - pad;
   const cW = cRight - cLeft;
   const cH = cBottom - cTop;
-  // Service lines (short service: ~1.98m from net = ~15% of half court)
   const shortServeOffset = cH * 0.15;
-  // Long service (doubles): ~0.76m from back = ~5.7% of half
   const longServeOffset = cH * 0.057;
-  // Center line
   const centerX = cx;
 
   const lineColor = "rgba(255,255,255,0.55)";
   const lineWidth = 2;
   const netColor = "rgba(255,255,255,0.8)";
 
+  // Shuttlecock position based on target zone
+  let shuttlePos: { x: number; y: number } | null = null;
+  if (targetZone) {
+    const leftX = cx - cW * 0.25;
+    const rightX = cx + cW * 0.25;
+    const onTop = currentPlayerIsTop !== false;
+
+    if (onTop) {
+      const zoneMap: Record<string, { x: number; y: number }> = {
+        longLeft: { x: leftX, y: cTop + shortServeOffset * 0.5 },
+        longRight: { x: rightX, y: cTop + shortServeOffset * 0.5 },
+        midLeft: { x: leftX, y: (cTop + shortServeOffset + cy) / 2 },
+        midRight: { x: rightX, y: (cTop + shortServeOffset + cy) / 2 },
+        shortLeft: { x: leftX, y: cy - shortServeOffset * 0.6 },
+        shortRight: { x: rightX, y: cy - shortServeOffset * 0.6 },
+      };
+      shuttlePos = zoneMap[targetZone] || null;
+    } else {
+      const zoneMap: Record<string, { x: number; y: number }> = {
+        shortLeft: { x: rightX, y: cy + shortServeOffset * 0.6 },
+        shortRight: { x: leftX, y: cy + shortServeOffset * 0.6 },
+        midLeft: { x: rightX, y: (cy + cBottom - shortServeOffset) / 2 },
+        midRight: { x: leftX, y: (cy + cBottom - shortServeOffset) / 2 },
+        longLeft: { x: rightX, y: cBottom - shortServeOffset * 0.5 },
+        longRight: { x: leftX, y: cBottom - shortServeOffset * 0.5 },
+      };
+      shuttlePos = zoneMap[targetZone] || null;
+    }
+  }
+
   return (
-    <svg className="court-svg" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
+    <svg className="court-svg" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMidYMid meet">
       {/* Court surface */}
       <defs>
         <linearGradient id="courtGrad" x1="0" y1="0" x2="0" y2="1">
@@ -165,14 +191,25 @@ function CourtSVG() {
       />
 
       {/* Zone labels */}
-      <text x={centerX - cW * 0.2} y={cTop + shortServeOffset / 2 + 4} fill="rgba(255,255,255,0.15)" fontSize="14" textAnchor="middle" fontWeight="600">FOND G</text>
-      <text x={centerX + cW * 0.2} y={cTop + shortServeOffset / 2 + 4} fill="rgba(255,255,255,0.15)" fontSize="14" textAnchor="middle" fontWeight="600">FOND D</text>
-      <text x={centerX - cW * 0.2} y={cy - cH * 0.15} fill="rgba(255,255,255,0.12)" fontSize="13" textAnchor="middle" fontWeight="600">MI-COURT G</text>
-      <text x={centerX + cW * 0.2} y={cy - cH * 0.15} fill="rgba(255,255,255,0.12)" fontSize="13" textAnchor="middle" fontWeight="600">MI-COURT D</text>
-      <text x={centerX - cW * 0.2} y={cy + cH * 0.18} fill="rgba(255,255,255,0.12)" fontSize="13" textAnchor="middle" fontWeight="600">MI-COURT G</text>
-      <text x={centerX + cW * 0.2} y={cy + cH * 0.18} fill="rgba(255,255,255,0.12)" fontSize="13" textAnchor="middle" fontWeight="600">MI-COURT D</text>
-      <text x={centerX - cW * 0.2} y={cBottom - shortServeOffset / 2 + 4} fill="rgba(255,255,255,0.15)" fontSize="14" textAnchor="middle" fontWeight="600">FOND G</text>
-      <text x={centerX + cW * 0.2} y={cBottom - shortServeOffset / 2 + 4} fill="rgba(255,255,255,0.15)" fontSize="14" textAnchor="middle" fontWeight="600">FOND D</text>
+      <text x={centerX - cW * 0.25} y={cTop + shortServeOffset / 2 + 4} fill="rgba(255,255,255,0.15)" fontSize="14" textAnchor="middle" fontWeight="600">FOND G</text>
+      <text x={centerX + cW * 0.25} y={cTop + shortServeOffset / 2 + 4} fill="rgba(255,255,255,0.15)" fontSize="14" textAnchor="middle" fontWeight="600">FOND D</text>
+      <text x={centerX - cW * 0.25} y={cy - cH * 0.12} fill="rgba(255,255,255,0.12)" fontSize="13" textAnchor="middle" fontWeight="600">MI-COURT G</text>
+      <text x={centerX + cW * 0.25} y={cy - cH * 0.12} fill="rgba(255,255,255,0.12)" fontSize="13" textAnchor="middle" fontWeight="600">MI-COURT D</text>
+      <text x={centerX - cW * 0.25} y={cy + cH * 0.14} fill="rgba(255,255,255,0.12)" fontSize="13" textAnchor="middle" fontWeight="600">MI-COURT G</text>
+      <text x={centerX + cW * 0.25} y={cy + cH * 0.14} fill="rgba(255,255,255,0.12)" fontSize="13" textAnchor="middle" fontWeight="600">MI-COURT D</text>
+      <text x={centerX - cW * 0.25} y={cBottom - shortServeOffset / 2 + 4} fill="rgba(255,255,255,0.15)" fontSize="14" textAnchor="middle" fontWeight="600">FOND G</text>
+      <text x={centerX + cW * 0.25} y={cBottom - shortServeOffset / 2 + 4} fill="rgba(255,255,255,0.15)" fontSize="14" textAnchor="middle" fontWeight="600">FOND D</text>
+
+      {/* Shuttlecock indicator */}
+      {shuttlePos && (
+        <g>
+          <circle cx={shuttlePos.x} cy={shuttlePos.y} r={20} fill="rgba(255,255,255,0.12)">
+            <animate attributeName="r" values="18;24;18" dur="2s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite" />
+          </circle>
+          <text x={shuttlePos.x} y={shuttlePos.y + 2} fontSize="22" textAnchor="middle" dominantBaseline="central" style={{ filter: "drop-shadow(0 0 4px rgba(255,255,255,0.6))" }}>{"\u{1F3F8}"}</text>
+        </g>
+      )}
     </svg>
   );
 }
@@ -217,7 +254,7 @@ function CardComponent({
         <span className="card-side-label">Option A</span>
         <span className="card-shot">{formatShot(card.first_shot)}</span>
         <span className="card-position">
-          {formatZone(card.first_position)} \u2192 {formatZone(card.first_target)}
+          {formatZone(card.first_position)} {"\u2192"} {formatZone(card.first_target)}
         </span>
       </div>
       <div className="card-divider" />
@@ -225,7 +262,7 @@ function CardComponent({
         <span className="card-side-label">Option B</span>
         <span className="card-shot">{formatShot(card.second_shot)}</span>
         <span className="card-position">
-          {formatZone(card.second_position)} \u2192 {formatZone(card.second_target)}
+          {formatZone(card.second_position)} {"\u2192"} {formatZone(card.second_target)}
         </span>
       </div>
     </div>
@@ -237,7 +274,7 @@ function App() {
   const [state, setState] = useState<MatchState | null>(null);
   const [p1Name, setP1Name] = useState("Joueur 1");
   const [p2Name, setP2Name] = useState("Joueur 2");
-  const [choosing, setChoosing] = useState<CardData | null>(null);
+  const [choosing, setChoosing] = useState<{ card: CardData; playableSide: "first" | "second" | null } | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleStart() {
@@ -264,26 +301,33 @@ function App() {
       return;
     }
 
-    if (card.first_shot === card.second_shot) {
-      setLoading(true);
-      try {
-        const data = await playCard(state.matchId, card.id, "first");
-        setState(data);
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
+    const topCard = state.middleDeckTopCard;
 
-    setChoosing(card);
+    // Determine which side is playable based on position matching the target
+    if (topCard?.target) {
+      const firstMatches = card.first_position === topCard.target;
+      const secondMatches = card.second_position === topCard.target;
+
+      if (firstMatches && !secondMatches) {
+        setChoosing({ card, playableSide: "first" });
+      } else if (secondMatches && !firstMatches) {
+        setChoosing({ card, playableSide: "second" });
+      } else {
+        // Both positions match - let the player choose
+        setChoosing({ card, playableSide: null });
+      }
+    } else {
+      // No target (after joker or initial state) - let the player choose
+      setChoosing({ card, playableSide: null });
+    }
   }
 
-  async function handleSideChoice(side: "first" | "second") {
+  async function handleConfirm(side: "first" | "second") {
     if (!state || !choosing) return;
     setLoading(true);
     setChoosing(null);
     try {
-      const data = await playCard(state.matchId, choosing.id, side);
+      const data = await playCard(state.matchId, choosing.card.id, side);
       setState(data);
     } finally {
       setLoading(false);
@@ -346,25 +390,45 @@ function App() {
         </div>
       )}
 
-      {/* Side choice modal */}
+      {/* Side choice / confirmation modal */}
       {choosing && (
         <div className="side-choice-overlay" onClick={() => setChoosing(null)}>
           <div className="side-choice-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Choisissez votre coup</h3>
-            <div className="side-choice-options">
-              <button className="side-choice-btn" onClick={() => handleSideChoice("first")}>
-                <span className="shot-name">{formatShot(choosing.first_shot)}</span>
-                <span className="shot-detail">
-                  {formatZone(choosing.first_position)} {"\u2192"} {formatZone(choosing.first_target)}
-                </span>
-              </button>
-              <button className="side-choice-btn" onClick={() => handleSideChoice("second")}>
-                <span className="shot-name">{formatShot(choosing.second_shot)}</span>
-                <span className="shot-detail">
-                  {formatZone(choosing.second_position)} {"\u2192"} {formatZone(choosing.second_target)}
-                </span>
-              </button>
-            </div>
+            {choosing.playableSide ? (
+              <>
+                <h3>Confirmez votre coup</h3>
+                <div className="side-choice-options">
+                  <button className="side-choice-btn" onClick={() => handleConfirm(choosing.playableSide!)}>
+                    <span className="shot-name">
+                      {formatShot(choosing.playableSide === "first" ? choosing.card.first_shot : choosing.card.second_shot)}
+                    </span>
+                    <span className="shot-detail">
+                      {formatZone(choosing.playableSide === "first" ? choosing.card.first_position : choosing.card.second_position)}
+                      {" \u2192 "}
+                      {formatZone(choosing.playableSide === "first" ? choosing.card.first_target : choosing.card.second_target)}
+                    </span>
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h3>Choisissez votre coup</h3>
+                <div className="side-choice-options">
+                  <button className="side-choice-btn" onClick={() => handleConfirm("first")}>
+                    <span className="shot-name">{formatShot(choosing.card.first_shot)}</span>
+                    <span className="shot-detail">
+                      {formatZone(choosing.card.first_position)} {"\u2192"} {formatZone(choosing.card.first_target)}
+                    </span>
+                  </button>
+                  <button className="side-choice-btn" onClick={() => handleConfirm("second")}>
+                    <span className="shot-name">{formatShot(choosing.card.second_shot)}</span>
+                    <span className="shot-detail">
+                      {formatZone(choosing.card.second_position)} {"\u2192"} {formatZone(choosing.card.second_target)}
+                    </span>
+                  </button>
+                </div>
+              </>
+            )}
             <button className="side-choice-cancel" onClick={() => setChoosing(null)}>
               Annuler
             </button>
@@ -395,7 +459,10 @@ function App() {
 
       {/* Court area with SVG */}
       <div className="court-area">
-        <CourtSVG />
+        <CourtSVG
+          targetZone={topCard?.target}
+          currentPlayerIsTop={state.currentPlayerId === player1.id}
+        />
 
         <div className="court-content">
           {/* Scoreboard */}
